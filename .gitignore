@@ -1,0 +1,43 @@
+# dependencies
+node_modules
+.pnp
+.pnp.*
+
+# next.js
+.next
+out
+build
+
+# env
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# testing
+coverage
+
+# misc
+.DS_Store
+*.pem
+.idea
+.vscode
+
+# ts
+*.tsbuildinfo
+
+# vercel
+.vercel
+
+# drizzle
+drizzle/journal.json
+
+# internal notes — strategy docs, scratchpads, anything not for the public repo
+/local/
