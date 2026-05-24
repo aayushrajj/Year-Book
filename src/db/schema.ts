@@ -104,6 +104,14 @@ export const profiles = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    // Denormalised from users.college_id so RLS can do same-college lookups
+    // without joining other users' rows (those rows are hidden by the
+    // users-table RLS policy). Set automatically by a BEFORE INSERT trigger
+    // (drizzle/0004_profiles_college_id.sql) but apps SHOULD pass it
+    // explicitly on insert as belt-and-suspenders.
+    collegeId: uuid("college_id")
+      .notNull()
+      .references(() => colleges.id, { onDelete: "restrict" }),
     username: text("username").notNull(),
     displayName: text("display_name").notNull(),
     oneLiner: text("one_liner").notNull().default(""),
@@ -130,6 +138,7 @@ export const profiles = pgTable(
     usernameIdx: index("profiles_username_idx").on(t.username),
     branchIdx: index("profiles_branch_idx").on(t.branchId),
     yearIdx: index("profiles_joining_year_idx").on(t.joiningYear),
+    collegeYearIdx: index("profiles_college_year_idx").on(t.collegeId, t.joiningYear),
   }),
 );
 

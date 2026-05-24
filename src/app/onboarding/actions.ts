@@ -78,7 +78,7 @@ export async function saveProfile(
   // figure out whether this is a first-time save (→ publish + redirect).
   const { data: existing } = await supabase
     .from("profiles")
-    .select("id, username, is_published, photo_path")
+    .select("id, username, is_published, photo_path, college_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -87,8 +87,26 @@ export async function saveProfile(
     username = await generateUniqueUsername(supabase, parsed.data.displayName, user.id);
   }
 
+  // college_id is denormalised onto profiles (see drizzle/0004) so RLS can do
+  // same-college lookups without joining users. The BEFORE INSERT trigger
+  // auto-fills this from public.users, but we also pass it explicitly so the
+  // app stays correct if the trigger is ever dropped.
+  const { data: meRow } = await supabase
+    .from("users")
+    .select("college_id")
+    .eq("id", user.id)
+    .maybeSingle();
+  const collegeId = existing?.college_id ?? meRow?.college_id;
+  if (!collegeId) {
+    return {
+      status: "error",
+      message: "Your account isn't fully set up yet — refresh and try again.",
+    };
+  }
+
   const payload = {
     user_id: user.id,
+    college_id: collegeId,
     username,
     display_name: parsed.data.displayName,
     one_liner: parsed.data.oneLiner,

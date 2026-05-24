@@ -40,7 +40,7 @@ export function ProfileDetailView({ profile, collegeName, collegeSlug }: Props) 
       </div>
 
       {/* hero ------------------------------------------------------------ */}
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,400px),1fr]">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,400px)_1fr]">
         {/* photo */}
         <div className="aspect-square w-full max-w-[400px] overflow-hidden rounded-md border border-ink-200 bg-cream-200">
           {profile.photoUrl ? (

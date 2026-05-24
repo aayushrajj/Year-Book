@@ -251,6 +251,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "college_id": {
+          "name": "college_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "username": {
           "name": "username",
           "type": "text",
@@ -402,9 +408,43 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "profiles_college_year_idx": {
+          "name": "profiles_college_year_idx",
+          "columns": [
+            {
+              "expression": "college_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "joining_year",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
+        "profiles_college_id_colleges_id_fk": {
+          "name": "profiles_college_id_colleges_id_fk",
+          "tableFrom": "profiles",
+          "tableTo": "colleges",
+          "columnsFrom": [
+            "college_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
         "profiles_user_id_users_id_fk": {
           "name": "profiles_user_id_users_id_fk",
           "tableFrom": "profiles",
