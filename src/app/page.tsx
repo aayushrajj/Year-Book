@@ -7,17 +7,13 @@ export default async function HomePage() {
   return (
     <>
       <section className="container-narrow pt-24 pb-16">
-        <p className="font-mono text-xs uppercase tracking-widest text-ink-500">
-          For BIT Mesra · 2018 batch · invite-only
-        </p>
-        <h1 className="mt-6 font-serif text-5xl leading-[1.05] tracking-tightish text-ink-900 sm:text-6xl">
-          A yearbook
+        <h1 className="font-serif text-5xl leading-[1.05] tracking-tightish text-ink-900 sm:text-6xl">
+          The people you went
           <br />
-          for your batch.
+          to college with, kept.
         </h1>
         <p className="mt-6 max-w-md text-lg text-ink-700">
-          A quiet, deliberate place to remember who was around. One profile per person. Visible
-          only to your batch.
+          A photo, a line, a profile — for everyone who was there.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center gap-4">
