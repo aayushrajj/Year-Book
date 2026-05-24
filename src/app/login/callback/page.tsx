@@ -12,7 +12,6 @@ type SearchParams = Promise<{
   code?: string;
   token_hash?: string;
   type?: string;
-  next?: string;
   error?: string;
   error_description?: string;
 }>;
@@ -69,7 +68,7 @@ export default async function CallbackPage({ searchParams }: { searchParams: Sea
     .select("id, is_published")
     .maybeSingle();
 
-  redirect(profile ? (params.next ?? "/me") : "/onboarding");
+  redirect(profile ? "/me" : "/onboarding");
 }
 
 function ErrorScreen({ title, detail }: { title: string; detail: string }) {
