@@ -51,6 +51,14 @@ renders but auth and DB calls will fail.
 7. Storage: the `profile-photos` bucket is created automatically by
    `drizzle/0002_storage_bucket.sql`. If your project rejects the SQL, create it
    manually: **public**, 5 MB cap, MIME allowlist `image/jpeg, image/png, image/webp`.
+8. **Email templates (important):** Supabase uses two different templates for
+   our flow — `mailer_templates_magic_link_content` for returning users and
+   `mailer_templates_confirmation_content` for first-time signups. Both must
+   include `{{ .Token }}` (the 6-digit OTP) and the same Yearbook-styled HTML,
+   otherwise new users get the default "Confirm your email address" template
+   without the OTP code. Apply both via Authentication → Email Templates, or
+   run `scripts/sync-auth-templates.ts` (uses the Supabase Management API).
+   Also set `mailer_otp_length: 6`.
 
 ## Scripts
 
