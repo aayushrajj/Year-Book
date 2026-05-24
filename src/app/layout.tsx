@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
-import { SiteHeader } from "@/components/layout/site-header";
+import { RouteProgress } from "@/components/layout/route-progress";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { Suspense } from "react";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -48,6 +50,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${fraunces.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body className="flex min-h-screen flex-col">
+        <Suspense>
+          <RouteProgress />
+        </Suspense>
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

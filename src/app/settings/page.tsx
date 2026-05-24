@@ -26,6 +26,10 @@ export default async function SettingsPage() {
             Sign out
           </Button>
         </form>
+        <p className="mt-4 max-w-md text-xs text-ink-500">
+          No password to manage. Yearbook signs you in with a one-time code sent to your college
+          email — fresh every time, so there's nothing to remember or update.
+        </p>
       </section>
 
       <section className="mt-12 border-t border-ink-200/60 pt-6">

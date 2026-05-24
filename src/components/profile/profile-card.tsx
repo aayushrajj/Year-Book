@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { BatchCard } from "@/lib/profiles";
 import { urls } from "@/lib/routes";
+import { AvatarPlaceholder } from "./avatar-placeholder";
 
 export function ProfileCard({
   card,
@@ -18,20 +19,18 @@ export function ProfileCard({
       className="group flex flex-col gap-3"
       aria-label={`Open ${card.displayName}'s profile`}
     >
-      <div className="aspect-square overflow-hidden rounded-md border border-ink-200 bg-cream-200">
+      <div className="aspect-square overflow-hidden rounded-md border border-ink-200 bg-cream-200 transition-transform duration-300 ease-quiet group-hover:scale-[1.01]">
         {card.photoUrl ? (
           <Image
             src={card.photoUrl}
             alt=""
             width={500}
             height={500}
-            className="h-full w-full object-cover transition-transform duration-300 ease-quiet group-hover:scale-[1.02]"
+            className="h-full w-full object-cover"
             sizes="(min-width: 1024px) 22vw, (min-width: 640px) 30vw, 45vw"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center font-serif text-5xl text-ink-300">
-            ☉
-          </div>
+          <AvatarPlaceholder seed={card.id} name={card.displayName} />
         )}
       </div>
 

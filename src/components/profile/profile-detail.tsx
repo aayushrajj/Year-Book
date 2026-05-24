@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ProfileDetail } from "@/lib/profiles";
 import { urls } from "@/lib/routes";
+import { AvatarPlaceholder } from "./avatar-placeholder";
+import { CopyLinkButton } from "./copy-link-button";
 
 type Props = {
   profile: ProfileDetail;
@@ -21,22 +23,28 @@ export function ProfileDetailView({ profile, collegeName, collegeSlug }: Props) 
 
   return (
     <article className="container-wide py-12">
-      {/* breadcrumb + edit ----------------------------------------------- */}
-      <div className="mb-10 flex items-baseline justify-between gap-4">
+      {/* breadcrumb + actions -------------------------------------------- */}
+      <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between">
         <Link
           href={urls.batch(collegeSlug, profile.joiningYear)}
           className="font-mono text-xs uppercase tracking-widest text-ink-500 hover:text-ink-900"
         >
           ← {collegeName} · {profile.joiningYear} batch
         </Link>
-        {profile.isOwner ? (
-          <Link
-            href="/me"
-            className="rounded-md border border-ink-200 px-3 py-1.5 font-sans text-sm text-ink-700 transition-colors hover:bg-cream-200 hover:text-ink-900"
-          >
-            Edit profile
-          </Link>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          <CopyLinkButton
+            path={urls.profile(collegeSlug, profile.joiningYear, profile.username)}
+            label="Share profile"
+          />
+          {profile.isOwner ? (
+            <Link
+              href="/me"
+              className="inline-flex items-center rounded-md border border-ink-200 px-3 py-1.5 font-sans text-sm text-ink-700 transition-colors hover:bg-cream-200 hover:text-ink-900"
+            >
+              Edit profile
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       {/* hero ------------------------------------------------------------ */}
@@ -53,9 +61,7 @@ export function ProfileDetailView({ profile, collegeName, collegeSlug }: Props) 
               priority
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center font-serif text-7xl text-ink-300">
-              ☉
-            </div>
+            <AvatarPlaceholder seed={profile.id} name={profile.displayName} />
           )}
         </div>
 

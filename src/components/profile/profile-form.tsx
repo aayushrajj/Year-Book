@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { FieldError, Label } from "@/components/ui/label";
 import { Select, SelectGroup, SelectItem, SelectSeparator } from "@/components/ui/select";
+import { AvatarPlaceholder } from "./avatar-placeholder";
 import {
   KNOWN_FOR_MAX,
   MAX_JOINING_YEAR,
@@ -62,11 +63,16 @@ export function ProfileForm({
   branches,
   initial,
   userId,
+  /** Stable seed for the gradient avatar — should be profile.id when editing
+   * so this page matches batch view + profile detail. Defaults to userId
+   * during onboarding when no profile row exists yet. */
+  avatarSeed,
   mode,
 }: {
   branches: Branch[];
   initial: ProfileInitial | null;
   userId: string;
+  avatarSeed?: string;
   mode: "create" | "edit";
 }) {
   const [state, formAction, isPending] = useActionState(saveProfile, initialState);
@@ -155,9 +161,11 @@ export function ProfileForm({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photoUrl} alt="" className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center font-serif text-3xl text-ink-300">
-              ☉
-            </div>
+            <AvatarPlaceholder
+              seed={avatarSeed ?? userId}
+              name={initial?.displayName ?? "you"}
+              size="md"
+            />
           )}
         </div>
         <div className="flex-1">

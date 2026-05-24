@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getBranchesForCollege } from "@/lib/colleges";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { CopyLinkButton } from "@/components/profile/copy-link-button";
 import { ProfileForm, type ProfileInitial } from "@/components/profile/profile-form";
 import { PROFILE_PHOTOS_BUCKET } from "@/lib/constants";
 import { urls } from "@/lib/routes";
@@ -36,7 +37,7 @@ export default async function MePage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "display_name, one_liner, known_for, branch_id, joining_year, graduating_year, current_state, current_city, photo_path, socials, username, is_published",
+      "id, display_name, one_liner, known_for, branch_id, joining_year, graduating_year, current_state, current_city, photo_path, socials, username, is_published",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -83,22 +84,25 @@ export default async function MePage() {
           <div className="flex flex-wrap gap-2">
             <Link
               href={publicProfileHref}
-              className="rounded-md border border-ink-900 px-4 py-2 text-sm text-ink-900 transition-colors hover:bg-ink-900 hover:text-cream-100"
+              className="inline-flex items-center rounded-md border border-ink-900 px-4 py-2 text-sm text-ink-900 transition-colors hover:bg-ink-900 hover:text-cream-100"
             >
               View public profile →
             </Link>
-            {batchHref ? (
-              <Link
-                href={batchHref}
-                className="rounded-md border border-ink-200 px-4 py-2 text-sm text-ink-700 transition-colors hover:bg-cream-200 hover:text-ink-900"
-              >
-                Your batch
-              </Link>
-            ) : null}
+            <CopyLinkButton
+              path={publicProfileHref}
+              label="Copy link"
+              className="px-4 py-2"
+            />
           </div>
         ) : null}
       </div>
-      <ProfileForm branches={branches} initial={initial} userId={user.id} mode="edit" />
+      <ProfileForm
+        branches={branches}
+        initial={initial}
+        userId={user.id}
+        avatarSeed={profile.id}
+        mode="edit"
+      />
     </div>
   );
 }

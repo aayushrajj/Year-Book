@@ -24,13 +24,12 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="container-narrow pt-24 pb-16">
-        <h1 className="font-serif text-5xl leading-[1.05] tracking-tightish text-ink-900 sm:text-6xl">
-          The people you went
-          <br />
-          to college with, kept.
+      <section className="container-narrow pt-16 pb-12 sm:pt-24 sm:pb-16">
+        <h1 className="font-serif text-4xl leading-[1.05] tracking-tightish text-ink-900 sm:text-5xl lg:text-6xl">
+          The people you went to college with,{" "}
+          <span className="block sm:inline">kept.</span>
         </h1>
-        <p className="mt-6 max-w-md text-lg text-ink-700">
+        <p className="mt-6 max-w-md text-base text-ink-700 sm:text-lg">
           A photo, a line, a profile — for everyone who was there.
         </p>
 
