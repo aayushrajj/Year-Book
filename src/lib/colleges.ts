@@ -30,13 +30,25 @@ export const getColleges = cache(async (): Promise<CollegeOption[]> => {
   }));
 });
 
-export const getBranchesForCollege = cache(async (collegeId: string) => {
+export type BranchOption = {
+  id: string;
+  name: string;
+  shortName: string;
+  level: "UG" | "PG";
+  degree: string;
+  specialization: string | null;
+  isActive: boolean;
+};
+
+export const getBranchesForCollege = cache(async (collegeId: string): Promise<BranchOption[]> => {
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase
     .from("branches")
-    .select("id, name, short_name")
+    .select("id, name, short_name, level, degree, specialization, is_active, sort_order")
     .eq("college_id", collegeId)
-    .order("short_name");
+    .order("level", { ascending: true }) // UG before PG (alphabetical)
+    .order("is_active", { ascending: false }) // active first, legacy at bottom
+    .order("sort_order", { ascending: true });
 
   if (error) {
     console.error("Failed to load branches:", error.message);
@@ -47,5 +59,9 @@ export const getBranchesForCollege = cache(async (collegeId: string) => {
     id: b.id,
     name: b.name,
     shortName: b.short_name,
+    level: b.level as "UG" | "PG",
+    degree: b.degree,
+    specialization: b.specialization,
+    isActive: b.is_active,
   }));
 });

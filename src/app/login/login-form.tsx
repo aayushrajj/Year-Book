@@ -30,77 +30,86 @@ export function LoginForm({ colleges }: { colleges: CollegeOption[] }) {
   );
 
   // After the magic link is sent, swap the form for the code-entry step.
+  // The wrapping <h1> + intro intentionally lives inside each branch so the
+  // post-send view doesn't double-stack a "Sign in." headline above its own.
   if (sendState.status === "sent") {
     return <CodeStep email={sendState.email} state={verifyState} action={verifyAction} pending={verifyPending} />;
   }
 
   return (
-    <form action={sendAction} className="flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="collegeSlug">College</Label>
-        <Select
-          id="collegeSlug"
-          name="collegeSlug"
-          value={collegeSlug}
-          onValueChange={setCollegeSlug}
-          required
-          placeholder="Pick your college"
-        >
-          {activeColleges.map((c) => (
-            <SelectItem key={c.slug} value={c.slug}>
-              {c.name}
-            </SelectItem>
-          ))}
-          {inactiveColleges.length > 0 ? (
-            <>
-              <SelectSeparator />
-              <SelectGroup label="Coming soon">
-                {inactiveColleges.map((c) => (
-                  <SelectItem key={c.slug} value={c.slug} disabled>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </>
-          ) : null}
-        </Select>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="localpart" hint={selected ? `@${selected.emailDomain}` : undefined}>
-          College email
-        </Label>
-        <div className="flex items-stretch overflow-hidden rounded-md border border-ink-200 bg-cream-50 focus-within:border-ink-700">
-          <input
-            id="localpart"
-            name="localpart"
-            type="text"
-            autoComplete="email"
-            required
-            placeholder="your.name"
-            pattern="[a-zA-Z0-9._%+\\-]+"
-            className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-ink-900 placeholder:text-ink-300 focus:outline-none"
-          />
-          <span className="flex items-center bg-cream-200 px-3 font-mono text-sm text-ink-500">
-            @{selected?.emailDomain ?? ""}
-          </span>
-        </div>
-      </div>
-
-      {sendState.status === "error" ? <FieldError message={sendState.message} /> : null}
-
-      <Button type="submit" disabled={sendPending || !selected}>
-        {sendPending ? "Sending…" : "Send sign-in code"}
-      </Button>
-
-      <p className="font-mono text-xs text-ink-300">
-        By signing in you agree to our{" "}
-        <a href="/privacy" className="underline">
-          privacy practices
-        </a>
-        . Only verified students from the same college can see your profile.
+    <>
+      <h1 className="font-serif text-4xl leading-tight">Sign in.</h1>
+      <p className="mt-3 max-w-md text-ink-500">
+        A one-time link will land in your college inbox.
       </p>
-    </form>
+
+      <form action={sendAction} className="mt-10 flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="collegeSlug">College</Label>
+          <Select
+            id="collegeSlug"
+            name="collegeSlug"
+            value={collegeSlug}
+            onValueChange={setCollegeSlug}
+            required
+            placeholder="Pick your college"
+          >
+            {activeColleges.map((c) => (
+              <SelectItem key={c.slug} value={c.slug}>
+                {c.name}
+              </SelectItem>
+            ))}
+            {inactiveColleges.length > 0 ? (
+              <>
+                <SelectSeparator />
+                <SelectGroup label="Coming soon">
+                  {inactiveColleges.map((c) => (
+                    <SelectItem key={c.slug} value={c.slug} disabled>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </>
+            ) : null}
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="localpart" hint={selected ? `@${selected.emailDomain}` : undefined}>
+            College email
+          </Label>
+          <div className="flex items-stretch overflow-hidden rounded-md border border-ink-200 bg-cream-50 focus-within:border-ink-700">
+            <input
+              id="localpart"
+              name="localpart"
+              type="text"
+              autoComplete="email"
+              required
+              placeholder="your.name"
+              pattern="[a-zA-Z0-9._%+\\-]+"
+              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-ink-900 placeholder:text-ink-300 focus:outline-none"
+            />
+            <span className="flex items-center bg-cream-200 px-3 font-mono text-sm text-ink-500">
+              @{selected?.emailDomain ?? ""}
+            </span>
+          </div>
+        </div>
+
+        {sendState.status === "error" ? <FieldError message={sendState.message} /> : null}
+
+        <Button type="submit" disabled={sendPending || !selected}>
+          {sendPending ? "Sending…" : "Send sign-in code"}
+        </Button>
+
+        <p className="font-mono text-xs text-ink-300">
+          Profiles are visible only to your batch. By signing in you agree to our{" "}
+          <a href="/privacy" className="underline">
+            privacy practices
+          </a>
+          .
+        </p>
+      </form>
+    </>
   );
 }
 
@@ -125,31 +134,18 @@ function CodeStep({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-lg border border-ink-200 bg-cream-50 p-5">
-        <h2 className="font-serif text-2xl">Check your inbox.</h2>
-        <p className="mt-2 text-sm text-ink-500">
-          We sent a sign-in email to{" "}
-          <span className="font-mono text-ink-900">{email}</span>. It expires in an hour.
+      <div>
+        <h2 className="font-serif text-3xl leading-tight">Check your inbox.</h2>
+        <p className="mt-2 text-ink-500">
+          We sent a code to <span className="font-mono text-ink-900">{email}</span>. It expires in
+          an hour.
         </p>
-        <ul className="mt-4 space-y-2 text-sm text-ink-700">
-          <li className="flex gap-2">
-            <span className="font-mono text-ink-500">a.</span>
-            <span>Click the link in the email — works if you opened it on this device.</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="font-mono text-ink-500">b.</span>
-            <span>
-              Or paste the <span className="font-mono">6-digit code</span> from the email below —
-              works from any device.
-            </span>
-          </li>
-        </ul>
       </div>
 
       <form action={action} className="flex flex-col gap-4">
         <input type="hidden" name="email" value={email} />
 
-        <Label htmlFor="code" hint="from the email">
+        <Label htmlFor="code" hint="6 digits">
           Sign-in code
         </Label>
         <input
@@ -172,8 +168,12 @@ function CodeStep({
           {pending ? "Verifying…" : "Sign in"}
         </Button>
 
+        <p className="text-xs text-ink-500">
+          The email also has a clickable link — use it if you opened the email on this device.
+        </p>
+
         <p className="font-mono text-xs text-ink-300">
-          Didn't get the email? Check spam, then{" "}
+          Didn't get it? Check spam, or{" "}
           <a href="/login" className="underline">
             start over
           </a>

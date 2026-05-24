@@ -5,7 +5,7 @@ import imageCompression from "browser-image-compression";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { FieldError, Label } from "@/components/ui/label";
-import { Select, SelectItem } from "@/components/ui/select";
+import { Select, SelectGroup, SelectItem, SelectSeparator } from "@/components/ui/select";
 import {
   KNOWN_FOR_MAX,
   MAX_JOINING_YEAR,
@@ -21,7 +21,20 @@ import {
 import { getSupabaseBrowser } from "@/lib/supabase/browser";
 import { saveProfile, type SaveProfileState } from "@/app/onboarding/actions";
 
-type Branch = { id: string; name: string; shortName: string };
+type Branch = {
+  id: string;
+  name: string;
+  shortName: string;
+  level: "UG" | "PG";
+  degree: string;
+  specialization: string | null;
+  isActive: boolean;
+};
+
+function formatBranchLabel(b: Branch) {
+  const base = `${b.degree} — ${b.name}`;
+  return b.specialization ? `${base} (${b.specialization})` : base;
+}
 
 export type ProfileInitial = {
   displayName: string;
@@ -72,10 +85,17 @@ export function ProfileForm({
   const [branchId, setBranchId] = useState<string>(initial?.branchId ?? "");
   const [currentState, setCurrentState] = useState<string>(initial?.currentState ?? "");
 
-  const branchOptions = useMemo(
-    () => branches.map((b) => ({ value: b.id, label: `${b.shortName} — ${b.name}` })),
-    [branches],
-  );
+  const grouped = useMemo(() => {
+    const ug: Branch[] = [];
+    const pg: Branch[] = [];
+    const legacy: Branch[] = [];
+    for (const b of branches) {
+      if (!b.isActive) legacy.push(b);
+      else if (b.level === "UG") ug.push(b);
+      else pg.push(b);
+    }
+    return { ug, pg, legacy };
+  }, [branches]);
 
   async function onPhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -128,9 +148,9 @@ export function ProfileForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-7">
-      {/* Photo */}
+      {/* Photo — squared per the design (yearbook portraits, not avatars) */}
       <div className="flex items-center gap-6">
-        <div className="h-28 w-28 overflow-hidden rounded-full border border-ink-200 bg-cream-200">
+        <div className="h-28 w-28 overflow-hidden rounded-md border border-ink-200 bg-cream-200">
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photoUrl} alt="" className="h-full w-full object-cover" />
@@ -194,20 +214,48 @@ export function ProfileForm({
       <FieldError message={errors.knownFor} />
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${id}-branchId`}>Branch</Label>
+        <Label htmlFor={`${id}-branchId`}>Program</Label>
         <Select
           id={`${id}-branchId`}
           name="branchId"
           value={branchId}
           onValueChange={setBranchId}
           required
-          placeholder="Pick your branch"
+          placeholder="Pick your program"
         >
-          {branchOptions.map((b) => (
-            <SelectItem key={b.value} value={b.value}>
-              {b.label}
-            </SelectItem>
-          ))}
+          {grouped.ug.length > 0 ? (
+            <SelectGroup label="Undergraduate">
+              {grouped.ug.map((b) => (
+                <SelectItem key={b.id} value={b.id}>
+                  {formatBranchLabel(b)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          ) : null}
+          {grouped.pg.length > 0 ? (
+            <>
+              {grouped.ug.length > 0 ? <SelectSeparator /> : null}
+              <SelectGroup label="Postgraduate">
+                {grouped.pg.map((b) => (
+                  <SelectItem key={b.id} value={b.id}>
+                    {formatBranchLabel(b)}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </>
+          ) : null}
+          {grouped.legacy.length > 0 ? (
+            <>
+              <SelectSeparator />
+              <SelectGroup label="Older programs">
+                {grouped.legacy.map((b) => (
+                  <SelectItem key={b.id} value={b.id}>
+                    {formatBranchLabel(b)}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </>
+          ) : null}
         </Select>
         <FieldError message={errors.branchId} />
       </div>

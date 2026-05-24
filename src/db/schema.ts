@@ -39,12 +39,31 @@ export const branches = pgTable(
     collegeId: uuid("college_id")
       .notNull()
       .references(() => colleges.id, { onDelete: "cascade" }),
+    // 'UG' | 'PG' — enforced at insert by the seed. We use text + check
+    // constraint (defined in migration) instead of a pgEnum because the
+    // set is tiny and unlikely to change.
+    level: text("level").notNull(),
+    // Degree type: 'B.Tech', 'B.Sc', 'B.Arch', 'B.Pharm', 'M.Tech', 'M.Sc',
+    // 'M.Pharm', 'MCA', 'MBA', 'MUP', 'M.A.', 'Integrated M.Sc', 'Integrated MBA', etc.
+    degree: text("degree").notNull(),
+    // Full official name, e.g. "Computer Science and Engineering".
     name: text("name").notNull(),
+    // Short identifier used for URLs / quick reference, e.g. "BTECH-CSE".
     shortName: text("short_name").notNull(),
+    // Optional sub-specialization, e.g. "Heat Power Engineering" for one of
+    // the four M.Tech Mechanical splits. Null for standalone programs.
+    specialization: text("specialization"),
+    // Explicit dropdown ordering. Lower = earlier within its level group.
+    sortOrder: integer("sort_order").notNull().default(100),
+    // Discontinued programs stay in the DB (alumni still have them) but
+    // appear in a separate "Older programs" group at the bottom of the
+    // dropdown rather than being deleted.
+    isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({
     collegeShortIdx: uniqueIndex("branches_college_short_idx").on(t.collegeId, t.shortName),
+    collegeLevelIdx: index("branches_college_level_idx").on(t.collegeId, t.level, t.sortOrder),
   }),
 );
 

@@ -41,3 +41,7 @@ drizzle/journal.json
 
 # internal notes — strategy docs, scratchpads, anything not for the public repo
 /local/
+
+# Claude Code session state. We commit only the launch spec (handy for other devs).
+.claude/*
+!.claude/launch.json

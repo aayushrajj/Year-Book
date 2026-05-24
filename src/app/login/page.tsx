@@ -18,13 +18,7 @@ export default async function LoginPage() {
   return (
     <div className="container-narrow flex min-h-[calc(100vh-4rem)] items-center py-16">
       <div className="w-full">
-        <h1 className="font-serif text-4xl leading-tight">Sign in.</h1>
-        <p className="mt-3 max-w-md text-ink-500">
-          A one-time link will land in your college inbox. No passwords.
-        </p>
-        <div className="mt-10">
-          <LoginForm colleges={colleges} />
-        </div>
+        <LoginForm colleges={colleges} />
       </div>
     </div>
   );
