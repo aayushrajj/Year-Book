@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getBranchesForCollege } from "@/lib/colleges";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { ProfileForm, type ProfileInitial } from "@/components/profile/profile-form";
 import { PROFILE_PHOTOS_BUCKET } from "@/lib/constants";
+import { urls } from "@/lib/routes";
 
 export const metadata: Metadata = {
   title: "Edit profile",
@@ -18,7 +20,7 @@ export default async function MePage() {
 
   const { data: userRow } = await supabase
     .from("users")
-    .select("college_id")
+    .select("college_id, college:colleges!inner(slug, name)")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -63,14 +65,38 @@ export default async function MePage() {
     photoPublicUrl: photoUrl,
   };
 
+  const college = (userRow.college as unknown) as { slug: string; name: string } | null;
+  const publicProfileHref = college
+    ? urls.profile(college.slug, profile.joining_year, profile.username)
+    : null;
+  const batchHref = college ? urls.batch(college.slug, profile.joining_year) : null;
+
   return (
     <div className="container-narrow py-12">
-      <div className="mb-10 flex items-baseline justify-between">
+      <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-ink-500">Your profile</p>
           <h1 className="mt-2 font-serif text-4xl">{profile.display_name}</h1>
+          <p className="mt-1 font-mono text-xs text-ink-300">@{profile.username}</p>
         </div>
-        <p className="font-mono text-xs text-ink-300">@{profile.username}</p>
+        {publicProfileHref ? (
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={publicProfileHref}
+              className="rounded-md border border-ink-900 px-4 py-2 text-sm text-ink-900 transition-colors hover:bg-ink-900 hover:text-cream-100"
+            >
+              View public profile →
+            </Link>
+            {batchHref ? (
+              <Link
+                href={batchHref}
+                className="rounded-md border border-ink-200 px-4 py-2 text-sm text-ink-700 transition-colors hover:bg-cream-200 hover:text-ink-900"
+              >
+                Your batch
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
       </div>
       <ProfileForm branches={branches} initial={initial} userId={user.id} mode="edit" />
     </div>

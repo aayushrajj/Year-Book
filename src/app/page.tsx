@@ -1,8 +1,26 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
+import { getSupabaseServer } from "@/lib/supabase/server";
+import { urls } from "@/lib/routes";
+
+async function resolveSignedInDestination(userId: string) {
+  const supabase = await getSupabaseServer();
+  const { data } = await supabase
+    .from("profiles")
+    .select("joining_year, user:users!inner(college:colleges!inner(slug))")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) return null;
+  // Supabase nests joined rows as objects (or arrays for one-to-many). We trust
+  // the shape from the explicit select string.
+  const college = (data.user as unknown as { college: { slug: string } } | null)?.college;
+  if (!college?.slug) return null;
+  return { href: urls.batch(college.slug, data.joining_year) };
+}
 
 export default async function HomePage() {
   const user = await getCurrentUser();
+  const dest = user ? await resolveSignedInDestination(user.id) : null;
 
   return (
     <>
@@ -18,12 +36,21 @@ export default async function HomePage() {
 
         <div className="mt-10 flex flex-wrap items-center gap-4">
           {user ? (
-            <Link
-              href="/me"
-              className="rounded-md bg-ink-900 px-5 py-3 font-sans text-cream-100 transition-colors hover:bg-ink-700"
-            >
-              Open your profile
-            </Link>
+            dest ? (
+              <Link
+                href={dest.href}
+                className="rounded-md bg-ink-900 px-5 py-3 font-sans text-cream-100 transition-colors hover:bg-ink-700"
+              >
+                Open your batch
+              </Link>
+            ) : (
+              <Link
+                href="/onboarding"
+                className="rounded-md bg-ink-900 px-5 py-3 font-sans text-cream-100 transition-colors hover:bg-ink-700"
+              >
+                Complete your profile
+              </Link>
+            )
           ) : (
             <Link
               href="/login"
