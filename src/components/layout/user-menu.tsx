@@ -3,6 +3,7 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import type { Route } from "next";
+import { useRef } from "react";
 import { AvatarPlaceholder } from "@/components/profile/avatar-placeholder";
 
 type Props = {
@@ -16,6 +17,12 @@ type Props = {
 };
 
 export function UserMenu({ displayName, avatarSeed, photoUrl, profileHref, batchHref }: Props) {
+  // A hidden sign-out form lives outside the dropdown so it isn't subject
+  // to Radix's Item-click interception (which preventDefaults form submits).
+  // The dropdown's Sign-out item triggers `formRef.current?.submit()` via
+  // onSelect — which fires after Radix's own handler resolves.
+  const signOutFormRef = useRef<HTMLFormElement>(null);
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -79,18 +86,22 @@ export function UserMenu({ displayName, avatarSeed, photoUrl, profileHref, batch
 
           <DropdownMenu.Separator className="my-1 h-px bg-ink-200/60" />
 
-          <DropdownMenu.Item asChild>
-            <form action="/auth/sign-out" method="post" className="m-0">
-              <button
-                type="submit"
-                className="flex w-full cursor-pointer items-center rounded-sm px-2.5 py-2 text-left text-sm text-ink-700 outline-none transition-colors hover:text-ink-900 data-[highlighted]:bg-cream-200"
-              >
-                Sign out
-              </button>
-            </form>
+          <DropdownMenu.Item
+            onSelect={(e) => {
+              // Submit the hidden form synchronously after Radix lets us
+              // (it would otherwise close the menu and never reach the form).
+              e.preventDefault();
+              signOutFormRef.current?.submit();
+            }}
+            className="flex w-full cursor-pointer items-center rounded-sm px-2.5 py-2 text-left text-sm text-ink-700 outline-none transition-colors hover:text-ink-900 data-[highlighted]:bg-cream-200"
+          >
+            Sign out
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
+
+      {/* The actual sign-out POST. Hidden but functional. */}
+      <form ref={signOutFormRef} action="/auth/sign-out" method="post" className="hidden" />
     </DropdownMenu.Root>
   );
 }

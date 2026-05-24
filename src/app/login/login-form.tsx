@@ -86,7 +86,10 @@ export function LoginForm({ colleges }: { colleges: CollegeOption[] }) {
               autoComplete="email"
               required
               placeholder="your.name"
-              pattern="[a-zA-Z0-9._%+\\-]+"
+              // Hyphen at the end of the class is literal in every regex flavour,
+              // including the modern `v` flag Chrome uses for HTML `pattern`.
+              // Previous `\\-` produced an invalid escape under v-mode.
+              pattern="[a-zA-Z0-9._%+-]+"
               className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-ink-900 placeholder:text-ink-300 focus:outline-none"
             />
             <span className="flex items-center bg-cream-200 px-3 font-mono text-sm text-ink-500">

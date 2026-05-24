@@ -60,8 +60,31 @@ export async function sendMagicLink(
   });
 
   if (error) {
-    console.error("magic-link error:", error.message);
-    return { status: "error", message: "Could not send the link. Try again in a moment." };
+    console.error("magic-link error:", { code: error.code, status: error.status, message: error.message });
+
+    // Surface specific Supabase errors with copy that actually helps.
+    // Most common in dev: built-in mailer rate limit (2 emails/hour, project-wide,
+    // can't be raised without custom SMTP).
+    const msg = error.message?.toLowerCase() ?? "";
+    if (
+      error.code === "over_email_send_rate_limit" ||
+      error.status === 429 ||
+      msg.includes("rate limit") ||
+      msg.includes("email rate")
+    ) {
+      return {
+        status: "error",
+        message:
+          "Email send limit reached for this project. Wait an hour and try again, or ask the admin to set up custom SMTP.",
+      };
+    }
+    if (msg.includes("invalid") && msg.includes("email")) {
+      return { status: "error", message: "That email doesn't look right. Double-check and retry." };
+    }
+    return {
+      status: "error",
+      message: `Could not send the code. ${error.message ?? "Try again in a moment."}`,
+    };
   }
 
   return { status: "sent", email };
